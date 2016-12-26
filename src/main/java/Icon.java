@@ -6,31 +6,41 @@ public class Icon {
 	private String currentGrid;
 	private int mcm;
 	private int initiative;
+	private int willpower;
+	private int logic;
 	private int intuition;
 	private int deviceRating;
 	private boolean player;
+	private int hacking;
+	private int cybercombat;
 	private String name;
 	private int attack;
 	private int sleaze;
 	private int dataProcessing;
 	private int firewall;
+	private boolean locatedInHost;
 	
 
-	public Icon(int iconID, String type, String currentGrid, int mcm ,int initiative, int intuition,  int deviceRating, boolean player, 
-			String name, int attack, int sleaze, int dataProcessing, int firewall) {
+	public Icon(int iconID, String type, String currentGrid, int mcm ,int initiative, int willpower, int logic, int intuition,  int deviceRating, boolean player, int hacking,
+			int cybercombat, String name, int attack, int sleaze, int dataProcessing, int firewall, boolean locatedInHost) {
 		super();
 		this.currentGrid = currentGrid;
 		this.iconID = iconID;
 		this.mcm = mcm;
 		this.initiative = initiative;
+		this.willpower = willpower;
+		this.logic = logic;
 		this.intuition = intuition;
 		this.deviceRating = deviceRating;
 		this.player = player;
+		this.hacking = hacking;
+		this.cybercombat = cybercombat;
 		this.name = name;
 		this.attack = attack;
 		this.sleaze = sleaze;
 		this.dataProcessing = dataProcessing;
 		this.firewall = firewall;
+		this.locatedInHost = locatedInHost;
 	}
 
 
@@ -70,6 +80,26 @@ public class Icon {
 		this.initiative = initiative;
 	}
 
+	public int getWillpower() {
+		return willpower;
+	}
+
+
+	public void setWillpower(int willpower) {
+		this.willpower = willpower;
+	}
+
+
+	public int getLogic() {
+		return logic;
+	}
+
+
+	public void setLogic(int logic) {
+		this.logic = logic;
+	}
+
+
 	public int getIntuition() {
 		return intuition;
 	}
@@ -94,10 +124,40 @@ public class Icon {
 		this.player = player;
 	}
 	
+	public boolean getLocatedInHost() {
+		return locatedInHost;
+	}
+
 	
 	
 	
 	
+	
+	public int getHacking() {
+		return hacking;
+	}
+
+
+	public void setHacking(int hacking) {
+		this.hacking = hacking;
+	}
+
+
+	public int getCybercombat() {
+		return cybercombat;
+	}
+
+
+	public void setCybercombat(int cybercombat) {
+		this.cybercombat = cybercombat;
+	}
+
+
+	public void setLocatedInHost(boolean locatedInHost) {
+		this.locatedInHost = locatedInHost;
+	}
+
+
 	public int rollInitiative (int intuition) {
 		int curInitiative = (intuition * 2) + Dice.dotsqty(4);
 		return curInitiative;

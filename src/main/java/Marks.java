@@ -85,6 +85,7 @@ public class Marks extends MatrixAction {
 			break;
 		default: validMarks = 0;	
 			break;
+		case "Enter Host" : validMarks = 0;	
 		}
 		if (Marks.searchMarks() >= validMarks) {; 
 			System.out.println("Action validated...");

@@ -165,6 +165,7 @@ public class Dice {
 	
 	public static int tresholdTest ( int dicePool1, int treshold, int limit, boolean glitch, boolean critGlitch, boolean success) {
 		
+		
 		int glitchCounter1 = 0;
 		//int glitchCounter2 = 0;
 		int hit1 = 0;

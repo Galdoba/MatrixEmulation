@@ -15,16 +15,17 @@ public class MatrixAction extends MatrixEmulation {
 	static int attMod = 0;
 	static int defMod = 0;
 	private static int nethits;
+	
 	//private static int damage;
 	private static String matrixActionName = null;
 	static String command = null;
 	static String comm0 = null;
 	static String comm1 = null;
 	static String comm2 = null;
-	private static String [] mtrxActML = {"Data Spike", "Hold", "Brute Force", "Brute Force2", "Brute Force3", "Matrix Perceiption", "Matrix Search"};
-	private static String [] attmtrxAct = {"Data Spike", "Brute Force", "Brute Force2", "Brute Force3"};
-	private static String [] slzmtrxAct = {};
-	private static String [] dPmtrxAct = {"Matrix Perceiption", "Matrix Search"};
+	private static String [] mtrxActML = {"Data Spike", "Hold", "Brute Force", "Brute Force2", "Brute Force3", "Matrix Perceiption", "Matrix Search", "IC Attack", "Enter Host", "Hack On The Fly", "Leave Host"};
+	private static String [] attmtrxAct = {"Data Spike", "Brute Force", "Brute Force2", "Brute Force3", "IC Attack"};
+	private static String [] slzmtrxAct = {"Hack On The Fly"};
+	private static String [] dPmtrxAct = {"Matrix Perceiption", "Matrix Search", "Enter Host", "Leave Host"};
 	private static String [] frwmtrxAct = {};
 	//public static List <Marks> markList = new ArrayList<Marks>(); dfghоаывп
 	//markList.add(mARK);
@@ -36,6 +37,7 @@ public class MatrixAction extends MatrixEmulation {
 	//static ArrayList <Icon> targetList = new ArrayList<Icon>();
 	
 	public static void action () {
+		nethits = 0;
 		//формируем Список марок
 		//Marks.initiateMARKs();
 		
@@ -83,10 +85,38 @@ public class MatrixAction extends MatrixEmulation {
 			}
 			comm0 = iconAttack.getName();
 			comm1 = matrixActionName;
-			if (comm0.equals("Patrol IC")) {
-				matrixActionName = "Matrix Perceiption";
-				comm1 = matrixActionName;
+			/*
+			Если атакующая икона IC matrixActionName = ICAction (Исключение Патруль)
+			*/
+			
+			System.out.println("Type IconAttack=  " + iconAttack.getType());
+			
+			if (iconAttack.getType().equals("IC") == true && iconAttack.getLocatedInHost() == iconDefence.getLocatedInHost() ) {
+				matrixActionName = "IC Attack";
+				comm1 = "IC Attack";
 			}
+			
+			
+			
+			
+			
+			
+			if (comm0.equals("Patrol IC")) {
+				if (iconAttack.getLocatedInHost() == iconDefence.getLocatedInHost()) {
+					matrixActionName = "IC Attack";
+					comm1 = matrixActionName;
+					System.out.println("Should Scan");
+				} else {
+					matrixActionName = "Hold";
+					System.out.println("Should NOT Scan");
+				}
+			}
+			if (iconAttack.getType() == "IC" && iconAttack.getLocatedInHost() != iconDefence.getLocatedInHost()) {
+				matrixActionName = "Hold";
+				System.out.println("Should NOT ATTACK");
+			}
+			
+			
 			command = comm0 + ">" + comm1 + ">" + comm2;
 			System.out.println("Програмная сборка команды:");
 			System.out.println(command);
@@ -98,13 +128,13 @@ public class MatrixAction extends MatrixEmulation {
 			System.out.println(Frame.userInput());
 			System.out.println(command);
 			Scanner cons = new Scanner(System.in);
-			//command = Frame.getInputConsole().getText();
+			command = Frame.getInputConsole().getText();
 			boolean act = false;
 			boolean subj = false;
 			while (act == false || subj == false) {
 				System.out.print("Action:" + "Persona0>");
 				//Frame.userInput();
-				command = Frame.userInput();
+				//command = Frame.userInput();
 				//command = cons.nextLine(); //String[] ss=s.split("/");
 				String[] s = command.split(">");
 				comm0 = "Persona0>";
@@ -177,20 +207,48 @@ public class MatrixAction extends MatrixEmulation {
         break;
         case "Brute Force":  bruteForce();
         System.out.println("Using Brute Force Action...");
+        if (nethits > 0 && Host.yellowAlert == false) {
+        	Host.yellowAlert = true;
+        	System.out.println("YELLOW ALERT!!!");
+        }
         break;
         case "Brute Force2":  bruteForce2();
         System.out.println("Using Brute Force Action...");
+        if (nethits > 0 && Host.yellowAlert == false) {
+        	Host.yellowAlert = true;
+        	System.out.println("YELLOW ALERT!!!");
+        }
         break;
         case "Brute Force3":  bruteForce3();
         System.out.println("Using Brute Force Action...");
+        if (nethits > 0 && Host.yellowAlert == false) {
+        	Host.yellowAlert = true;
+        	System.out.println("YELLOW ALERT!!!");
+        }
         break;
+        
+        case "Enter Host": enterHost();
+        break;
+        
+        case "Leave Host": leaveHost();
+        
+        
         case "Hold":		hold();
+        break;
+        case "IC Attack": icAttack();
+        System.out.println("Using IC Attack Action...");
+        break;
+        case "Hack On The Fly": hackOnTheFly();
+        System.out.println("Using Hack On The Fly Action...");
         break;
         case "Matrix Perceiption":  matrixPerceiption ();
         if (iconAttack.getName().equals("Patrol IC") && Host.redAlert == false && nethits > 0) {
         	Host.redAlert = true;
         	System.out.println("RED ALERT!!!");
         }
+        break;
+        case "Matrix Search":  matrixSearch();
+        System.out.println("Using Matrix Search Action...");
         break;
 		}
 		
@@ -202,26 +260,166 @@ public class MatrixAction extends MatrixEmulation {
 
 
 	private static int executetest() {
+		int attAtr = 0;
+		int attSkill = 0;
+		int defAtr1 = 0;
+		int defAtr2 = 0;
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Acid IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getWillpower();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		 
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Binder IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getWillpower();
+			defAtr2 = iconDefence.getDataProcessing();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Black IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getIntuition();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Blaster IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getLogic();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Crash IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getIntuition();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Jammer IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getWillpower();
+			defAtr2 = iconDefence.getAttack();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Killer IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getIntuition();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Marker IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getWillpower();
+			defAtr2 = iconDefence.getSleaze();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Patrol IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getLogic();
+			defAtr2 = iconDefence.getSleaze();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Probe IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getIntuition();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Scramble IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getWillpower();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Sparky IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getIntuition();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Tar Baby IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getLogic();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Track IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getWillpower();
+			defAtr2 = iconDefence.getSleaze();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Bloodhound IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getWillpower();
+			defAtr2 = iconDefence.getSleaze();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Catapult IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getLogic();
+			if (iconDefence.getLogic() < iconDefence.getIntuition()) {
+				defAtr1 = iconDefence.getIntuition();
+			}
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("IC Attack") && iconAttack.getName().equals("Shoker IC")) { //дайспуд против асида
+			attAtr = iconAttack.getDeviceRating();
+			attSkill = iconAttack.getDeviceRating();
+			defAtr1 = iconDefence.getIntuition();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("Hack On The Fly")) { //дайспуд против HotF
+			attAtr = iconAttack.getLogic();
+			attSkill = iconAttack.getHacking();
+			defAtr1 = iconDefence.getIntuition();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		if (matrixActionName.equals("Data Spike")) { //дайспуд против HotF
+			attAtr = iconAttack.getLogic();
+			attSkill = iconAttack.getCybercombat();
+			defAtr1 = iconDefence.getIntuition();
+			defAtr2 = iconDefence.getFirewall();
+		}
+		
+		
+		
 		if (iconAttack.getName().equals("Patrol IC") && Host.patrolScanCounter > 1 && Host.yellowAlert == false && Host.redAlert == false) {
 			targetIcon = "-1";
 			System.out.println("patrolScanCounter = " + Host.patrolScanCounter);
 			//Host.patrolScanCounter = Host.patrolScanCounter -1;
 			
 		}
-		
-		switch (targetIcon) {
-		case "-1": matrixActionName="Hold";
-				return 0;
-		default:
-		int dicePool1 = iconAttack.getDeviceRating() * 2 + attMod; ///Через Switch строить дайспул 1
-		if (dicePool1 < 0) {
-			dicePool1 = 0;
-		}
-		int dicePool2 = iconDefence.getDeviceRating() + iconDefence.getFirewall() + defMod; //Через Switch строить дайспул 2
-		int limit = 0; //нужен механизм выбора лимита от типа действия
+		int limit = 0; //далее механизм выбора лимита от типа действия:
 		for (int i = 0; i < attmtrxAct.length; i++) {
 			if (matrixActionName.equals(attmtrxAct[i])) {
 				limit = iconAttack.getAttack();
+				
+			}
+		}
+		//////////////////////////////
+		for (int i = 0; i < slzmtrxAct.length; i++) {
+			if (matrixActionName.equals(slzmtrxAct[i])) {
+				limit = iconAttack.getSleaze();
 				
 			}
 		}
@@ -231,6 +429,34 @@ public class MatrixAction extends MatrixEmulation {
 				
 			}
 		}
+		
+		
+		
+		
+		switch (targetIcon) {
+		case "-1": matrixActionName="Hold";
+				return 0;
+		default:
+			if (matrixActionName.equals("Matrix Search")) {
+				int dicePool1 = iconAttack.getDeviceRating() * 2 + attMod; ///Через Switch строить дайспул 1
+				if (dicePool1 < 0) {
+					dicePool1 = 0;
+				}
+				int treshold = 1;	
+				System.out.println("Executing Test:  (" + dicePool1 + "[" + limit + "] vs " + treshold + ")");
+				nethits = Dice.tresholdTest( dicePool1, treshold, limit, true, true, true);
+				System.out.println("Treshold test nethits: " + nethits);
+				System.out.println("Target found in: " + 20/nethits + " turns");
+				return nethits;
+			}
+			
+			
+		int dicePool1 = attAtr + attSkill + attMod; ///Через Switch строить дайспул 1
+		if (dicePool1 < 0) {
+			dicePool1 = 0;
+		}
+		int dicePool2 = defAtr1 + defAtr2 + defMod; //Через Switch строить дайспул 2
+		
 		
 		
 		System.out.println("Executing Test:  (" + dicePool1 + "[" + limit + "] vs " + dicePool2 + ")");
@@ -292,6 +518,64 @@ public class MatrixAction extends MatrixEmulation {
 	
 //-------------------MATRIX ACTIONS MECHANICS-----------------------
 	
+	private static void icAttack() {
+		System.out.println("***********Player STATS*************");
+		System.out.println("A/S/D/F = " + iconList.get(0).getAttack() + "/" + iconList.get(0).getSleaze() + "/" + iconList.get(0).getDataProcessing() + "/" + iconList.get(0).getFirewall()  );
+		
+		
+			
+		System.out.println("nethits=" + nethits);
+		if (nethits > 0) {
+			switch (iconAttack.getName()){
+			case "Patrol IC": 
+				if (turn != 0) {
+					matrixPerceiption();
+					Host.redAlert = true;
+				}
+			//Айс должен поделиться всей информацией с хостом и другими айсами (даже в случае неудачи)
+				break;
+				
+			case "Acid IC": 
+				if (nethits > 0) {
+					if (iconDefence.getFirewall() > 0) {
+					iconDefence.setFirewall(iconDefence.getFirewall() - 1);
+					Frame.addLog("Warning!!! Firewall reduced!!!");
+					} else {
+						iconDefence.setMcm(iconDefence.getMcm() - nethits);
+						Frame.addLog("Warning!!! " + nethits + " Matrix damage recived!!!");
+					}
+				}
+				
+			case "Binder IC": 
+				if (nethits > 0) {
+					if (iconDefence.getDataProcessing() > 0) {
+					iconDefence.setDataProcessing(iconDefence.getDataProcessing() - 1);
+					Frame.addLog("Warning!!! Data Processing reduced!!!");
+					} else {
+						iconDefence.setMcm(iconDefence.getMcm() - nethits);
+						Frame.addLog("Warning!!! " + nethits + " Matrix damage recived!!!");
+					}
+					
+				}
+				
+			case "Killer IC": 
+				if (nethits > 0) {
+					dataSpike();
+				}		
+				
+				
+			default:
+				System.out.println(iconAttack.getName() + " succeseed in attack.../");
+			}
+			Frame.addLog("Action:" + comm0 + ">" + comm1 + ">" + comm2);
+			Frame.addLog("...ok");
+		}	
+		if (nethits < 1) { //Если айс проваливает атаку - ничего не происходит
+			Frame.addLog("Action:" + comm0 + ">" + comm1 + ">" + comm2);
+			Frame.addLog("...rejected");
+		}
+	}
+	
 	private static void bruteForce() {
 		System.out.println("nethits=" + nethits);
 		if (nethits > 0) {
@@ -311,18 +595,14 @@ public class MatrixAction extends MatrixEmulation {
 			System.out.println("марoк было:" + Marks.searchMarks());
 			Marks.place1Mark();
 			System.out.println("марoк стало:" + Marks.searchMarks());
+			Host.yellowAlert = true;
 			Frame.addLog("Action:" + comm0 + ">" + comm1 + ">" + comm2);
 			Frame.addLog("...ok");
 		}
-		if (nethits < 1) { //происходит если нетхиты меньше нуля (защита получает марку на атаку и атака огребает урон)
+		if (nethits < 1) { //происходит если нетхиты меньше нуля (атака огребает урон)
 			int damage = nethits;
 			iconAttack.setMcm(iconAttack.getMcm() + damage); //наносим повреждения равные нетхитам
 			System.out.println("наносим повреждения равные нетхитам:" + damage);
-			System.out.println("Ставим марку");
-			Marks.searchMarks();
-			System.out.println("марoк было:" + Marks.searchMarks());
-			Marks.place1MarkR();
-			System.out.println("марoк стало:" + Marks.searchMarks());
 			Frame.addLog("Action:" + comm0 + ">" + comm1 + ">" + comm2);
 			Frame.addLog("...rejected");
 		}
@@ -347,16 +627,13 @@ public class MatrixAction extends MatrixEmulation {
 			Marks.place1Mark();
 			//place1Mark();
 			System.out.println("марoк стало:" + Marks.searchMarks());
+			Host.yellowAlert = true;
 		}
 		if (nethits < 1) { //происходит если нетхиты меньше нуля (защита получает марку на атаку и атака огребает урон)
 			int damage = nethits;
 			iconAttack.setMcm(iconAttack.getMcm() + damage); //наносим повреждения равные нетхитам
 			System.out.println("наносим повреждения равные нетхитам:" + damage);
 			System.out.println("Ставим марку");
-			Marks.searchMarks();
-			System.out.println("марoк было:" + Marks.searchMarks());
-			Marks.place1MarkR();
-			System.out.println("марoк стало:" + Marks.searchMarks());
 		}
 		
 	}
@@ -380,16 +657,12 @@ public class MatrixAction extends MatrixEmulation {
 			Marks.place1Mark();
 			Marks.place1Mark();
 			System.out.println("марoк стало:" + Marks.searchMarks());
+			Host.yellowAlert = true;
 		}
 		if (nethits < 1) { //происходит если нетхиты меньше нуля (защита получает марку на атаку и атака огребает урон)
 			int damage = nethits;
 			iconAttack.setMcm(iconAttack.getMcm() + damage); //наносим повреждения равные нетхитам
 			System.out.println("наносим повреждения равные нетхитам:" + damage);
-			System.out.println("Ставим марку");
-			Marks.searchMarks();
-			System.out.println("марoк было:" + Marks.searchMarks());
-			Marks.place1MarkR();
-			System.out.println("марoк стало:" + Marks.searchMarks());
 		}
 		
 	}
@@ -414,6 +687,7 @@ public class MatrixAction extends MatrixEmulation {
 				System.out.println("MCM защищающейся иконы ДО: " + iconDefence.getMcm());	
 			iconDefence.setMcm(iconDefence.getMcm() - damage);
 			System.out.println("MCM защищающейся иконы ПОСЛЕ: " + iconDefence.getMcm());
+			Host.yellowAlert = true;
 			Frame.addLog("Action:" + comm0 + ">" + comm1 + ">" + comm2);
 			Frame.addLog("...ok");
 		}
@@ -421,16 +695,79 @@ public class MatrixAction extends MatrixEmulation {
 		
 	}
 	
+	private static void hackOnTheFly() {
+		System.out.println("nethits=" + nethits);
+		if (nethits > 0) {
+			// Сделать отдельным методом вскрытие 1 бита информации.
+			System.out.println("Ставим марку");
+			Marks.searchMarks();
+			System.out.println("марoк было:" + Marks.searchMarks());
+			Marks.place1Mark();
+			System.out.println("марoк стало:" + Marks.searchMarks());
+			Frame.addLog("Action:" + comm0 + ">" + comm1 + ">" + comm2);
+			Frame.addLog("...ok");
+		}
+		if (nethits < 1) { //происходит если нетхиты меньше нуля (защита получает марку на атаку и атака огребает урон)
+			System.out.println("Ставим марку");
+			Marks.searchMarks();
+			System.out.println("марoк было:" + Marks.searchMarks());
+			Marks.place1MarkR();
+			System.out.println("марoк стало:" + Marks.searchMarks());
+			Host.yellowAlert = true;
+			Host.redAlert = true;
+			Frame.addLog("Action:" + comm0 + ">" + comm1 + ">" + comm2);
+			Frame.addLog("...rejected");
+		}
+		
+	}
+	
+	
+	
+	
+	
 	private static void matrixPerceiption() {
 		// TODO Auto-generated method stub
 		System.out.println("Do MPerceipt");
 		System.out.println("MPerceipt NetHits=" + nethits);
 		if (nethits > 0) {
 			System.out.println("Reveal " + nethits + " bytes if information about " + iconDefence.getName());
+			Frame.addLog("Action:" + comm0 + ">" + comm1 + ">" + comm2);
+			Frame.addLog("...ok");
 		}
 		
 		
 	}
+	
+	private static void matrixSearch() {
+		
+		System.out.println("Do MSearch");
+		System.out.println("MSearch NetHits=" + nethits);
+		if (nethits > 0) {
+			//переключаем спот игрока против хоста на true
+			System.out.println("Reveal " + nethits + " bytes if information about " + iconDefence.getName());
+		}
+		
+		
+	}
+	
+	private static void enterHost() {
+		System.out.println(iconAttack.getName() + " entering Host......");
+		System.out.println("Persona in Host  = " + iconList.get(0).getLocatedInHost());
+		//if (nethits> -1) {
+		iconAttack.setLocatedInHost(true);
+		//}
+		System.out.println("Persona in Host  = " + iconList.get(0).getLocatedInHost());
+	}
+	
+	private static void leaveHost() {
+		System.out.println(iconAttack.getName() + " leaving Host......");
+		System.out.println("Persona in Host  = " + iconList.get(0).getLocatedInHost());
+		//if (nethits> -1) {
+		iconAttack.setLocatedInHost(false);
+		//}
+		System.out.println("Persona in Host  = " + iconList.get(0).getLocatedInHost());
+	}
+	
 	
 	private static void hold() {
 		System.out.println(iconAttack.getName() + " holding......");

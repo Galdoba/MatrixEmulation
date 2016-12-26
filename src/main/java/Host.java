@@ -91,7 +91,7 @@ public class Host extends MatrixEmulation {
 		if (n>75 && n<78) { temp1 = 11; }
 		if (n>77 && n<79) { temp1 = 12; }
 		//Making Host always Rating 3
-		temp1 = 3;
+		temp1 = 6;
 		//////////////////////////////////////////////////
 		switch (temp1) {
 		case 1:  hostRating = 1;

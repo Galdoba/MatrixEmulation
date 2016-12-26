@@ -9,7 +9,7 @@ public class MatrixEmulation extends RunStart {
 	//private int rating;
 	//private int overwatchScore; //Возможно это характеристика Иконы
 	
-	int turn = 0;
+	static int turn = 0;
 	int initiative;
 	//Icon attributes
 	//private int idNumber = 0;
@@ -27,10 +27,10 @@ public class MatrixEmulation extends RunStart {
 	
 	//ЧТО ДЕЛАЕТ ЭТА ХРЕНЬ?
 	static ArrayList<Icon> iconList = new ArrayList<Icon>();
-	static Icon iconNull = new Icon(0, "Template","Public Grid",0,0,0,0,false, null, 0, 0, 0, 0);
-	static Icon iconAttack = new Icon(0, "Icon","Public Grid",0,0,0,0,false, null, 0, 0, 0, 0);
-	static Icon iconDefence = new Icon(0, "Icon","Public Grid",0,0,0,0,true, null, 0, 0, 0, 0);
-	static Icon persona = new Icon(0, "Persona","Public Grid", 1, 0, 0, 4, true, "Persona0", 5, 4, 3, 2);
+	static Icon iconNull = new Icon(0, "Template","Public Grid",0,0,0,0,0,0,false,0,0, null, 0, 0, 0, 0, false);
+	static Icon iconAttack = new Icon(0, "Icon","Public Grid",0,0,0,0,0,0,false,0,0, null, 0, 0, 0, 0, false);
+	static Icon iconDefence = new Icon(0, "Icon","Public Grid",0,0,0,0,0,0,true,0,0, null, 0, 0, 0, 0, false);
+	static Icon persona = new Icon(0, "Persona","Public Grid", 1,0, 4,4, 4, 3, true,6,6, "Persona0", 5, 5, 5, 5, true);
 	
 	public static List <Marks> markList = new ArrayList<Marks>();
 	static Marks mARK = new Marks (0, 0, 4);
@@ -67,6 +67,7 @@ public class MatrixEmulation extends RunStart {
 		iconList.add(persona);
 		persona.setMcm(((persona.getDeviceRating()/2)+1000)); //ПРИСВАЕВАЕМ ТОЛЬКО ЧТО СОЗДАННОЙ ПЕРСОНЕ МСМ=(DR/2)+8
 		playerMCM = persona.getMcm();
+		persona.setType("Persona");
 		//System.out.println("ListSize=" + iconList.size());
 		}
 	
@@ -74,8 +75,9 @@ public class MatrixEmulation extends RunStart {
 	//СОЗДАНИЕ ИКОНЫ
 	public void createIcon () {
 		iconName = iconName + iconID;
-		Icon xx = new Icon(iconID, "Icon","Public Grid", 1, 0, 0, 2, false, iconName, 2, 0, 2, 2);
+		Icon xx = new Icon(iconID, "Icon","Public Grid", 1, 0, 2, 2, 2, 2, false,0, 0, iconName, 2, 0, 2, 2, persona.getLocatedInHost());
 		iconName = "Icon";
+		xx.setType("Icon");
 		iconID++;
 		//iconList.add(xx);
 		xx.setMcm(((xx.getDeviceRating()/2)+8)); //ПРИСВАЕВАЕМ ТОЛЬКО ЧТО СОЗДАННОЙ ИКОНЕ МСМ=(DR/2)+8
@@ -87,8 +89,9 @@ public class MatrixEmulation extends RunStart {
 		//String name, int attack, int sleaze, int dataProcessing, int firewall)
 		iconName = Host.chooseNextIC ();
 			if (iconName.equals("Null IC") == false) {
-				Icon xx = new Icon(iconID, "IC",Host.getHostGrid(), 1, 0, Host.getHostRating(), Host.getHostRating(), false, iconName, Host.getHostAttack(), Host.getHostSleaze(), 
-						Host.getHostDataProcessing(), Host.getHostFirewall());
+				Icon xx = new Icon(iconID, "IC",Host.getHostGrid(), 1, 0, Host.getHostRating(), Host.getHostRating(),Host.getHostRating(), Host.getHostRating(), false,Host.getHostRating(),Host.getHostRating(), iconName,
+						Host.getHostAttack(), Host.getHostSleaze(),	Host.getHostDataProcessing(), Host.getHostFirewall(), true);
+				xx.setType("IC");
 				Host.loadedICList.add(iconName);
 				System.out.println("Host loaded new IC...");
 				iconName = "Icon";
@@ -102,12 +105,13 @@ public class MatrixEmulation extends RunStart {
 	
 	public static void createHost () {
 		//iconName = iconName + iconID;
-		Icon xx = new Icon(-1, "Host","Public Grid", 1, 0, 0, 2, false, "Host", 2, 0, 2, 2);
+		Icon xx = new Icon(-1, "Host","Public Grid", 1, 0, 0, 0, 0, 2, false,0,0, "Host", 2, 0, 2, 2, true);
 		xx.setMcm(9999); //ПРИСВАЕВАЕМ хосту неибическое значение Хитпойтов чтобы его не грохнуть. Он нужен как икона чтобы манипулировать с марками.
 		xx.setAttack(Host.getHostAttack());
 		xx.setSleaze(Host.getHostSleaze());
 		xx.setDataProcessing(Host.getHostDataProcessing());
 		xx.setFirewall(Host.getHostFirewall());
+		xx.setType("Host");
 		// присваеваем сети.
 		//iconName = "Icon";
 		//iconID++;
